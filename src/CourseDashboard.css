@@ -27,8 +27,8 @@ body {
 }
 
 .logo {
-    width: auto; /* Set a smaller width */
-    height: 80px;
+    width: 30%; /* Set a smaller width */
+    height: 0%;
      /* Set a smaller height */
      /* Ensures the image fits within the width and height without being distorted */
 }
