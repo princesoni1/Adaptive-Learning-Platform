@@ -4,58 +4,46 @@ import './VideoPage.css';
 
 const VideoPage = () => {
     const location = useLocation();
-    const { courseFolder } = location.state; // Getting the selected course folder
+    const { courseFolder } = location.state;
     const [videoUrls, setVideoUrls] = useState([]);
     const [currentVideo, setCurrentVideo] = useState('');
-    const [currentVideoName, setCurrentVideoName] = useState(''); // Track the current video name
+    const [currentVideoName, setCurrentVideoName] = useState('');
     const [transcript, setTranscript] = useState('');
     const [notes, setNotes] = useState('');
-    const [contentData, setContentData] = useState({}); // Store entire content.json
-    const [activeTab, setActiveTab] = useState('transcript'); // Default tab
+    const [contentData, setContentData] = useState({});
+    const [activeTab, setActiveTab] = useState('transcript');
+    const [chatMessages, setChatMessages] = useState([]); // To store chat messages
+    const [chatInput, setChatInput] = useState('');
 
-    // Helper function to extract filename from full path
-    const extractFileName = (fullPath) => {
-        return fullPath.split('/').pop(); // Extract the last part (filename) from the path
-    };
+    const extractFileName = (fullPath) => fullPath.split('/').pop();
 
     useEffect(() => {
         const fetchVideosAndSections = async () => {
             try {
-                // Fetch video URLs from the selected course folder
                 const response = await fetch(`https://storage.googleapis.com/storage/v1/b/als-courses/o?prefix=${courseFolder}`);
                 const data = await response.json();
-
-                // Filter video files and set the first video
                 const videos = data.items
                     .filter(item => item.name.endsWith('.mp4'))
                     .map(video => ({
-                        name: video.name.replace(`${courseFolder}`, '').replace('.mp4', ''), // Get video name without folder
-                        fullName: video.name, // Full name for matching with content.json
+                        name: video.name.replace(`${courseFolder}`, '').replace('.mp4', ''),
+                        fullName: video.name,
                         url: `https://storage.googleapis.com/als-courses/${video.name}`
                     }));
 
                 if (videos.length > 0) {
                     setVideoUrls(videos);
-                    setCurrentVideo(videos[0].url); // Set the first video as the current video
-                    const videoFileName = extractFileName(videos[0].fullName); // Extract filename from full path
-                    setCurrentVideoName(videoFileName); // Set the video name
-
-                    console.log('First video filename:', videoFileName); // Log the first video filename
+                    setCurrentVideo(videos[0].url);
+                    const videoFileName = extractFileName(videos[0].fullName);
+                    setCurrentVideoName(videoFileName);
                 }
 
-                // Fetch content.json for transcript and notes (quesdef)
-                console.log('courseFolder',courseFolder)
                 const contentResponse = await fetch(`https://storage.googleapis.com/als-courses/${courseFolder}content.json`);
                 const contentData = await contentResponse.json();
-                setContentData(contentData); // Store the entire content.json data
+                setContentData(contentData);
 
-                console.log('Content data:', contentData); // Log the fetched content data
-
-                // Set the transcript and notes for the first video
                 if (videos.length > 0) {
                     const videoFileName = extractFileName(videos[0].fullName);
                     if (contentData[videoFileName]) {
-                        console.log('Content for first video:', contentData[videoFileName]); // Log the content for the first video
                         setTranscript(contentData[videoFileName].transcript || 'No transcript available.');
                         setNotes(contentData[videoFileName].quesdef || 'No notes available.');
                     }
@@ -71,12 +59,9 @@ const VideoPage = () => {
 
     const handleVideoSelect = (video) => {
         setCurrentVideo(video.url);
-        const videoFileName = extractFileName(video.fullName); // Extract filename from full path
+        const videoFileName = extractFileName(video.fullName);
         setCurrentVideoName(videoFileName);
-
-        // Set the transcript and notes for the selected video
         if (contentData[videoFileName]) {
-            console.log('Content for selected video:', contentData[videoFileName]); // Log the content for the selected video
             setTranscript(contentData[videoFileName].transcript || 'No transcript available.');
             setNotes(contentData[videoFileName].quesdef || 'No notes available.');
         } else {
@@ -85,9 +70,37 @@ const VideoPage = () => {
         }
     };
 
+    // Handle chat message input
+    const handleSendMessage = async () => {
+        if (chatInput.trim() === '') return;
+
+        setChatMessages([...chatMessages, { type: 'user', text: chatInput }]);
+
+        try {
+            const response = await fetch('http://localhost:8080/chat', { // Replace with your backend URL
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: chatInput })
+            });
+
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch chatbot reply');
+            }
+
+            const data = await response.json();
+            setChatMessages([...chatMessages, { type: 'user', text: chatInput }, { type: 'bot', text: data.reply }]);
+        } catch (error) {
+            console.error('Error sending message:', error);
+            setChatMessages([...chatMessages, { type: 'user', text: chatInput }, { type: 'bot', text: 'Chatbot not available at the moment.' }]);
+        }
+
+        setChatInput('');
+    };
+
     return (
         <div className="video-page">
-            {/* Video and Sections Container */}
+            {/* Video and Sections */}
             <div className="video-sections-container">
                 <div className="video-container">
                     <video controls src={currentVideo} className="video-player" />
@@ -106,16 +119,10 @@ const VideoPage = () => {
 
             {/* Menu Bar */}
             <div className="menu-bar">
-                <button
-                    className={activeTab === 'transcript' ? 'active-tab' : ''}
-                    onClick={() => setActiveTab('transcript')}
-                >
+                <button className={activeTab === 'transcript' ? 'active-tab' : ''} onClick={() => setActiveTab('transcript')}>
                     Transcript
                 </button>
-                <button
-                    className={activeTab === 'notes' ? 'active-tab' : ''}
-                    onClick={() => setActiveTab('notes')}
-                >
+                <button className={activeTab === 'notes' ? 'active-tab' : ''} onClick={() => setActiveTab('notes')}>
                     Notes
                 </button>
             </div>
@@ -124,6 +131,28 @@ const VideoPage = () => {
             <div className="content-display">
                 {activeTab === 'transcript' && <p>{transcript}</p>}
                 {activeTab === 'notes' && <p>{notes}</p>}
+            </div>
+
+            {/* Chatbot Integration */}
+            <div className="chatbot-container">
+                <div className="chatbot-button" onClick={() => document.getElementById("chatPopup").style.display = "block"}>💬</div>
+                <div className="chat-popup" id="chatPopup">
+                    <div className="chat-header">
+                        <h3>Gemini Chatbot</h3>
+                        <span className="close" onClick={() => document.getElementById("chatPopup").style.display = "none"}>&times;</span>
+                    </div>
+                    <div className="chat-body">
+                        {chatMessages.map((msg, index) => (
+                            <div key={index} className={msg.type === 'user' ? 'user-message' : 'bot-message'}>
+                                {msg.text}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="chat-footer">
+                        <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a message..." />
+                        <button onClick={handleSendMessage}>Send</button>
+                    </div>
+                </div>
             </div>
         </div>
     );
