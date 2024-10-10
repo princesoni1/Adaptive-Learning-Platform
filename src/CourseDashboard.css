@@ -8,7 +8,7 @@ body {
 
 .header {
     background-color: #181c6c; /* Dark background */
-    padding: 10px; /* Reduced padding for better alignment */
+    padding: 10px 20px; /* Added horizontal padding for better alignment */
     text-align: left;
     position: fixed; /* Fixed header */
     top: 0;
@@ -23,7 +23,6 @@ body {
 .logo-container {
     display: flex;
     align-items: center;
-    margin-left: -1.2%;
 }
 
 /* Base styles for logo */
@@ -31,14 +30,13 @@ body {
     width: 15vw; /* Responsive width based on viewport width */
     max-width: 250px; /* Optional maximum width */
     height: auto; /* Maintain aspect ratio */
-    min-width: 50px; /* Optional minimum width to prevent it from being too small */
+    min-width: 50px; /* Minimum width to prevent it from being too small */
 }
 
 /* Profile container styling */
 .profile-container {
     display: flex;
     align-items: center;
-    margin-right: 20px; /* Add space to the right */
 }
 
 /* Base styles for profile icon */
@@ -46,13 +44,13 @@ body {
     width: 8vw; /* Responsive width based on viewport width */
     max-width: 80px; /* Optional maximum width */
     height: auto; /* Maintain aspect ratio */
-    min-width: 40px; /* Optional minimum width to prevent it from being too small */
+    min-width: 40px; /* Minimum width to prevent it from being too small */
 }
 
 /* Media queries for responsiveness */
 @media screen and (max-width: 1024px) {
     .header {
-        padding: 15px; /* Adjust padding for medium screens */
+        padding: 10px; /* Reduce padding for medium screens */
     }
     
     .logo {
@@ -66,7 +64,7 @@ body {
 
 @media screen and (max-width: 768px) {
     .header {
-        padding: 10px; /* Reduce padding for smaller screens */
+        padding: 8px; /* Reduce padding for smaller screens */
     }
 
     .logo {
@@ -100,12 +98,9 @@ body {
     flex-direction: column;
     align-items: center; /* Center the course cards container */
     justify-content: center;
-    margin-right: 0px;
-    margin-top: -9%; /* Vertically center the container */
 }
 
 .course-dashboard h1 {
-    margin-right: 0px;
     margin-bottom: 2%;
 }
 
@@ -114,7 +109,8 @@ body {
     flex-wrap: wrap; /* Wrap cards to next line */
     justify-content: center; /* Center cards */
     gap: 30px; /* Larger space between cards */
-    max-width: 1200px; /* Restrict the total width of cards */
+    max-width: 1200px;
+    padding-bottom: 25%; /* Restrict the total width of cards */
 }
 
 .course-card {
@@ -143,15 +139,16 @@ body {
 }
 
 .course-card h2 {
-    padding: 20px; /* More padding around the title */
+    padding: 10px 20px; /* Reduced padding around the title */
     font-size: 1.3em; /* Slightly larger font size for the title */
     text-align: center; /* Center text */
     color: #0b0a0a; /* Dark text color */
-    flex-grow: 1; /* Push title to take up available space */
+    margin: 0; /* Remove default margin */
+    flex-grow: 0; /* Remove flex-grow to prevent it from pushing down */
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: -5%;
+    
 }
 
 .footer {
