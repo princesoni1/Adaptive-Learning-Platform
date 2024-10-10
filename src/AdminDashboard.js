@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { storage } from "./firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { createUserWithEmailAndPassword, deleteUser, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, deleteUser, getAuth, signOut } from "firebase/auth";
 import { getFirestore, collection, getDocs } from "firebase/firestore"; 
 import styled from "styled-components";
+
 
 const db = getFirestore();
 
@@ -14,6 +13,9 @@ const AdminDashboard = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [users, setUsers] = useState([]);
+  const [numCourses, setNumCourses] = useState(0);
+  const [numUsers, setNumUsers] = useState(0);
+
 
   // Fetch courses from Google Cloud Storage
   useEffect(() => {
@@ -32,6 +34,7 @@ const AdminDashboard = () => {
         
         console.log(courses); // Check if course data is correct
         setCourses(courses);
+        setNumCourses(courses.length); // Set the number of courses
       } catch (error) {
         console.error('Error fetching course files:', error);
       }
@@ -52,6 +55,7 @@ const fetchUsers = async () => {
       }));
       console.log(userList)
       setUsers(userList); // Update the state with fetched users
+      setNumUsers(userList.length); // Set the number of users
     } catch (error) {
       console.error("Error fetching users: ", error);
     }
@@ -126,23 +130,36 @@ const fetchUsers = async () => {
       alert("Failed to delete user.");
     }
   };
+  const handleLogout = async () => {
+    try {
+      const authInstance = getAuth();
+      await signOut(authInstance);
+      // Redirect to the login page after successful logout
+      window.location.href = "/login"; // Make sure your login route is correct
+    } catch (error) {
+      console.error("Error logging out: ", error);
+      alert("Failed to logout.");
+    }
+  };
 
   return (
     <DashboardContainer>
       <Sidebar>
-  <AdminProfile>
-    <AdminIcon>👤</AdminIcon> {/* Icon or an initial (optional) */}
-    <AdminName>Admin Name</AdminName> {/* Replace with the actual admin name */}
-  </AdminProfile>
+        <AdminProfile>
+          <AdminIcon>👤</AdminIcon>
+          <AdminName>Admin Name</AdminName>
+        </AdminProfile>
 
-  <SidebarButton onClick={() => setActivePanel("courses")}>Courses</SidebarButton>
-  <SidebarButton onClick={() => setActivePanel("users")}>Users</SidebarButton>
-</Sidebar>
-<Headbar>
+        <SidebarButton onClick={() => setActivePanel("courses")}>Courses</SidebarButton>
+        <SidebarButton onClick={() => setActivePanel("users")}>Users</SidebarButton>
+        <SidebarButton onClick={() => setActivePanel("analytics")}>Analytics</SidebarButton>
+      </Sidebar>
+
+      <Headbar>
         <HeadbarTitle>Admin Dashboard</HeadbarTitle>
         <HeadbarActions>
           <NotificationIcon />
-          <LogoutButton>Logout</LogoutButton>
+          <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
         </HeadbarActions>
       </Headbar>
 
@@ -174,7 +191,7 @@ const fetchUsers = async () => {
               </CourseList>
             </Section>
           </>
-        ) : (
+        ) : activePanel === "users" ? (
           <>
             {/* Manage Users Section */}
             <Section>
@@ -204,50 +221,63 @@ const fetchUsers = async () => {
 
             {/* List of Users Section */}
             <Section>
-  <SectionTitle>User List</SectionTitle>
-  <UserTable>
-    <thead>
-      <tr>
-        <TableHeader>First Name</TableHeader>
-        <TableHeader>Email</TableHeader>
-        <TableHeader>Mobile</TableHeader>
-        <TableHeader>Language</TableHeader>
-        
-        <TableHeader>Learner Type</TableHeader> {/* Replace with actual field name */}
-         {/* Replace with actual field name */}
-        <TableHeader>Actions</TableHeader>
-      </tr>
-    </thead>
-    <tbody>
-      {users.length > 0 ? (
-        users.map((user) => (
-          <tr key={user.uid}>
-            <TableData>{user.name}</TableData> {/* Replace with actual field */}
-            <TableData>{user.email}</TableData>
-            <TableData>{user.mobile}</TableData> 
-            <TableData>{user.languagePreference}</TableData>
-            <TableData>{user.learnerType}</TableData> {/* Adjust according to your user fields */}
-           {/* Adjust according to your user fields */}
-            <TableData>
-              <DeleteButton onClick={() => handleDeleteUser(user.uid)}>Delete</DeleteButton>
-            </TableData>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <TableData colSpan="6">No users found.</TableData>
-        </tr>
-      )}
-    </tbody>
-  </UserTable>
-</Section>
-
-
+              <SectionTitle>User List</SectionTitle>
+              <UserTable>
+                <thead>
+                  <tr>
+                    <TableHeader>First Name</TableHeader>
+                    <TableHeader>Email</TableHeader>
+                    <TableHeader>Mobile</TableHeader>
+                    <TableHeader>Language</TableHeader>
+                    <TableHeader>Learner Type</TableHeader>
+                    <TableHeader>Actions</TableHeader>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length > 0 ? (
+                    users.map((user) => (
+                      <tr key={user.uid}>
+                        <TableData>{user.name}</TableData>
+                        <TableData>{user.email}</TableData>
+                        <TableData>{user.mobile}</TableData>
+                        <TableData>{user.languagePreference}</TableData>
+                        <TableData>{user.learnerType}</TableData>
+                        <TableData>
+                          <DeleteButton onClick={() => handleDeleteUser(user.uid)}>Delete</DeleteButton>
+                        </TableData>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <TableData colSpan="6">No users found.</TableData>
+                    </tr>
+                  )}
+                </tbody>
+              </UserTable>
+            </Section>
+          </>
+        ) : (
+          <>
+            {/* Analytics Section */}
+            <Section>
+              <SectionTitle>Analytics</SectionTitle>
+              <AnalyticsContainer>
+                <AnalyticsCard>
+                  <CardTitle>Number of Courses</CardTitle>
+                  <CardValue>{numCourses}</CardValue>
+                </AnalyticsCard>
+                <AnalyticsCard>
+                  <CardTitle>Number of Users</CardTitle>
+                  <CardValue>{numUsers}</CardValue>
+                </AnalyticsCard>
+              </AnalyticsContainer>
+            </Section>
           </>
         )}
       </ContentContainer>
     </DashboardContainer>
   );
+
 };
 
 export default AdminDashboard;
@@ -489,3 +519,27 @@ const TableData = styled.td`
   text-overflow: ellipsis;
 `;
 
+const AnalyticsContainer = styled.div`
+  display: flex;
+  gap: 20px;
+`;
+
+const AnalyticsCard = styled.div`
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  flex: 1; /* Allow cards to grow equally */
+`;
+
+const CardTitle = styled.h3`
+  color: #003366;
+  margin-bottom: 10px;
+`;
+
+const CardValue = styled.p`
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007bff;
+`;
