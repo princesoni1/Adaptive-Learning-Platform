@@ -27,7 +27,7 @@ body {
     margin-left: -1.2%;
 }
 
-/* Adjust logo to be more responsive */
+/* Base styles for logo */
 .logo {
     width: 15vw; /* Responsive width based on viewport width */
     max-width: 250px; /* Optional maximum width */
@@ -41,12 +41,43 @@ body {
     margin-right: 20px; /* Add space to the right */
 }
 
-/* Adjust profile icon to be more responsive */
+/* Base styles for profile icon */
 .profile-icon {
     width: 8vw; /* Responsive width based on viewport width */
     max-width: 80px; /* Optional maximum width */
     height: auto; /* Maintain aspect ratio */
     min-width: 40px; /* Optional minimum width to prevent it from being too small */
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 1024px) {
+    .logo {
+        width: 20vw; /* Adjust logo size for medium screens */
+    }
+
+    .profile-icon {
+        width: 10vw; /* Adjust profile icon size for medium screens */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .logo {
+        width: 25vw; /* Increase logo size on smaller screens */
+    }
+
+    .profile-icon {
+        width: 12vw; /* Adjust profile icon size on smaller screens */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .logo {
+        width: 30vw; /* Further increase logo size for very small screens */
+    }
+
+    .profile-icon {
+        width: 15vw; /* Further adjust profile icon size for very small screens */
+    }
 }
 
 .course-dashboard {
