@@ -1,13 +1,64 @@
+body {
+    background-color:#d7e0eb;
+    height: 100%; /* Set height to 100% of the viewport */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.header {
+    background-color: #181c6c; /* Light blue background */
+    padding: 20px;
+    text-align: left;
+    position: fixed; /* Fixed header */
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center; /* Vertically center the content */
+    justify-content: space-between; /* Space out items inside header */
+    height: 40px;
+    margin-left: 0px;
+
+}
+.logo-container {
+    display: flex;
+    align-items: center;
+    margin-left: -1.2%;
+}
+
+.logo {
+    width: auto; /* Set a smaller width */
+    height: 80px;
+     /* Set a smaller height */
+     /* Ensures the image fits within the width and height without being distorted */
+}
+.profile-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Add space to the right */
+}
+
+
+.profile-icon {
+    width: 80px; /* Adjust the size */
+    height: auto; /* Adjust the size */
+}
+
 .course-dashboard {
     padding: 40px; /* More padding for larger center space */
-    background-color: #f4f4f4; /* Light background color */
+    background-color: #d7e0eb; /* Light background color */
     min-height: 100vh; /* Ensure full height */
     display: flex;
     flex-direction: column;
     align-items: center; /* Center the course cards container */
-    justify-content: center; /* Vertically center the container */
+    justify-content: center;
+    margin-right: 0px ; 
+    margin-top: -9%;/* Vertically center the container */
 }
-
+.course-dashboard h1 {
+  margin-right: 0px;
+  margin-bottom:2%;
+}
 .course-cards {
     display: flex;
     flex-wrap: wrap; /* Wrap cards to next line */
@@ -26,6 +77,7 @@
     transition: transform 0.2s; /* Smooth scaling effect */
     display: flex;
     flex-direction: column; /* Column layout to fit image and title */
+    height:240px;
     align-items: center; /* Center items inside the card */
 }
 
@@ -49,4 +101,26 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    
+}
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: white; /* White background for the footer */
+    display: flex;
+    justify-content: center; /* Center the footer content */
+    padding: 10px 0; /* Padding for some spacing inside the footer */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* Shadow effect at the top of the footer */
+}
+
+.footer-content {
+    text-align: center;
+    color: #333; /* Text color inside the footer */
+}
+
+.footer-content p {
+    margin: 0; /* Remove margin from paragraph */
+    font-size: 1em;
+    font-weight: bold; /* Set font size */
 }

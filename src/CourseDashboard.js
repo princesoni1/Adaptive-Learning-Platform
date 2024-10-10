@@ -36,17 +36,39 @@ const CourseDashboard = () => {
         navigate('/videopage', { state: { courseFolder: course.folderPath } });
     };
 
+    // New function to handle profile icon click
+    const handleProfileClick = () => {
+        navigate('/UserDetails'); // Navigate to UserDetails page
+    };
+
     return (
-        <div className="course-dashboard">
-            <h1>Course Dashboard</h1>
-            <div className="course-cards">
-                {courses.map(course => (
-                    <div key={course.name} className="course-card" onClick={() => handleCourseClick(course)}>
-                        <img src={course.thumbnail} alt={course.name} />
-                        <h2>{course.name}</h2>
-                    </div>
-                ))}
+        <div>
+            <header className="header">
+                <div className="logo-container">
+                    <img src="logo5.png.png" alt="Logo" className="logo" />
+                </div>
+                <div className="profile-container" onClick={handleProfileClick}> {/* Make the profile container clickable */}
+                    <svg className="profile-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="40px" height="40px">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                </div>
+            </header>
+            <div className="course-dashboard">
+                <h1>Course Dashboard</h1>
+                <div className="course-cards">
+                    {courses.map(course => (
+                        <div key={course.name} className="course-card" onClick={() => handleCourseClick(course)}>
+                            <img src={course.thumbnail} alt={course.name} />
+                            <h2>{course.name}</h2>
+                        </div>
+                    ))}
+                </div>
             </div>
+            <footer className="footer">
+                <div className="footer-content">
+                    <p>&copy; 2024 Adaptive Learning</p>
+                </div>
+            </footer>
         </div>
     );
 };
