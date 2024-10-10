@@ -1,0 +1,89 @@
+.video-page {
+    display: flex; /* Use flexbox for side-by-side layout */
+    padding: 20px; /* Padding for overall layout */
+    background-color: #f4f4f4; /* Background color */
+    flex-direction: column;
+
+}
+
+.video-sections-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-container {
+    flex: 3; /* Take 3 parts of the available space */
+    margin-right: 20px; /* Space between video and sections */
+}
+
+.video-player {
+    width: 100%; /* Responsive video */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.sections-container {
+    flex: 1; /* Take 1 part of the available space */
+    background-color: #fff; /* Background color for sections */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Padding for sections */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+}
+
+.sections-list {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+    margin: 0;
+}
+
+.sections-list li {
+    padding: 10px; /* Padding around each section */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.2s; /* Smooth transition for hover effect */
+}
+
+.sections-list li:hover {
+    background-color: #e0e0e0; /* Change background on hover */
+}
+
+.menu-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    background-color: #007bff;
+    padding: 10px 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.menu-bar button {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 0 20px;
+}
+
+.menu-bar button:hover {
+    background-color: #0056b3;
+}
+
+.active-tab {
+    background-color: #0056b3;
+}
+
+.content-display {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+

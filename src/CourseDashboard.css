@@ -1,0 +1,52 @@
+.course-dashboard {
+    padding: 40px; /* More padding for larger center space */
+    background-color: #f4f4f4; /* Light background color */
+    min-height: 100vh; /* Ensure full height */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the course cards container */
+    justify-content: center; /* Vertically center the container */
+}
+
+.course-cards {
+    display: flex;
+    flex-wrap: wrap; /* Wrap cards to next line */
+    justify-content: center; /* Center cards */
+    gap: 30px; /* Larger space between cards */
+    max-width: 1200px; /* Restrict the total width of cards */
+}
+
+.course-card {
+    background-color: #fff; /* Card background color */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Slightly bigger shadow effect */
+    overflow: hidden; /* Clip content */
+    width: 260px; /* Bigger card width */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: transform 0.2s; /* Smooth scaling effect */
+    display: flex;
+    flex-direction: column; /* Column layout to fit image and title */
+    align-items: center; /* Center items inside the card */
+}
+
+.course-card:hover {
+    transform: scale(1.08); /* Slightly larger scale on hover */
+}
+
+.course-card img {
+    width: 100%; /* Image takes full width of the card */
+    height: 160px; /* Fixed height for all images */
+    object-fit: cover; /* Ensure image fits within dimensions by cropping */
+    border-bottom: 2px solid #ddd; /* Optional border under the image */
+}
+
+.course-card h2 {
+    padding: 20px; /* More padding around the title */
+    font-size: 1.3em; /* Slightly larger font size for the title */
+    text-align: center; /* Center text */
+    color: #333; /* Dark text color */
+    flex-grow: 1; /* Push title to take up available space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
