@@ -27,20 +27,11 @@ body {
 }
 
 .logo {
-    width: 30%; /* Set a smaller width */
-    height: auto;
-     /* Set a smaller height */
-     /* Ensures the image fits within the width and height without being distorted */
+    width: 15vw; /* Responsive width based on viewport width */
+    max-width: 250px; /* Optional maximum width */
+    height: auto; /* Maintain aspect ratio */
 }
-@media screen and (max-width: 768px) {
-    .logo {
-        width: 50%; /* Increase logo size on smaller screens */
-    }
 
-    .profile-icon {
-        width: 60px; /* Decrease profile icon size on smaller screens */
-    }
-}
 .profile-container {
     display: flex;
     align-items: center;
@@ -49,10 +40,10 @@ body {
 
 
 .profile-icon {
-    width: 80px; /* Adjust the size */
-    height: auto; /* Adjust the size */
+    width: 8vw; /* Responsive width based on viewport width */
+    max-width: 80px; /* Optional maximum width */
+    height: auto; /* Maintain aspect ratio */
 }
-
 .course-dashboard {
     padding: 40px; /* More padding for larger center space */
     background-color: #d7e0eb; /* Light background color */
@@ -86,7 +77,7 @@ body {
     transition: transform 0.2s; /* Smooth scaling effect */
     display: flex;
     flex-direction: column; /* Column layout to fit image and title */
-    height:240px;
+    height:200px;
     align-items: center; /* Center items inside the card */
 }
 
@@ -96,7 +87,7 @@ body {
 
 .course-card img {
     width: 100%; /* Image takes full width of the card */
-    height: 160px; /* Fixed height for all images */
+    height: 140px; /* Fixed height for all images */
     object-fit: cover; /* Ensure image fits within dimensions by cropping */
     border-bottom: 2px solid #ddd; /* Optional border under the image */
 }
@@ -105,11 +96,12 @@ body {
     padding: 20px; /* More padding around the title */
     font-size: 1.3em; /* Slightly larger font size for the title */
     text-align: center; /* Center text */
-    color: #333; /* Dark text color */
+    color: #0b0a0a; /* Dark text color */
     flex-grow: 1; /* Push title to take up available space */
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top:-5%;
     
 }
 .footer {
