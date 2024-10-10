@@ -28,9 +28,18 @@ body {
 
 .logo {
     width: 30%; /* Set a smaller width */
-    height: 0%;
+    height: auto;
      /* Set a smaller height */
      /* Ensures the image fits within the width and height without being distorted */
+}
+@media screen and (max-width: 768px) {
+    .logo {
+        width: 50%; /* Increase logo size on smaller screens */
+    }
+
+    .profile-icon {
+        width: 60px; /* Decrease profile icon size on smaller screens */
+    }
 }
 .profile-container {
     display: flex;
