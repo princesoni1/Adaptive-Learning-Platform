@@ -25,12 +25,13 @@ body {
     align-items: center;
 }
 
-/* Base styles for logo */
+/* Updated styles for logo */
 .logo {
-    width: 15vw; /* Responsive width based on viewport width */
-    max-width: 250px; /* Optional maximum width */
+    width: 18vw; /* Increased width based on viewport width */
+    max-width: 300px; /* Increased maximum width */
     height: auto; /* Maintain aspect ratio */
-    min-width: 50px; /* Minimum width to prevent it from being too small */
+    min-width: 140px; /* Increased minimum width to prevent small size */
+    margin-left: -10%;
 }
 
 /* Profile container styling */
@@ -44,52 +45,31 @@ body {
     width: 8vw; /* Responsive width based on viewport width */
     max-width: 80px; /* Optional maximum width */
     height: auto; /* Maintain aspect ratio */
-    min-width: 40px; /* Minimum width to prevent it from being too small */
+    min-width: 50px; /* Adjust minimum size */
+    margin-right: 20px; /* Minimum width to prevent it from being too small */
 }
 
 /* Media queries for responsiveness */
-@media screen and (max-width: 1024px) {
-    .header {
-        padding: 10px; /* Reduce padding for medium screens */
-    }
-    
+@media (min-width: 768px) {
     .logo {
-        width: 18vw; /* Adjust logo size for medium screens */
+        width: 140px; /* Set larger fixed width on medium and larger screens */
+        margin-left: 0;
     }
-
     .profile-icon {
-        width: 9vw; /* Adjust profile icon size for medium screens */
+        width: 60px; /* Set fixed width for profile icon */
     }
 }
 
-@media screen and (max-width: 768px) {
-    .header {
-        padding: 8px; /* Reduce padding for smaller screens */
-    }
-
+@media (min-width: 1200px) {
     .logo {
-        width: 25vw; /* Increase logo size on smaller screens */
+        width: 180px; /* Larger logo on very large screens */
     }
-
     .profile-icon {
-        width: 12vw; /* Adjust profile icon size on smaller screens */
+        width: 70px; /* Increase size for profile icon on larger screens */
     }
 }
 
-@media screen and (max-width: 480px) {
-    .header {
-        padding: 5px; /* Minimal padding for very small screens */
-    }
-
-    .logo {
-        width: 30vw; /* Further increase logo size for very small screens */
-    }
-
-    .profile-icon {
-        width: 15vw; /* Further adjust profile icon size for very small screens */
-    }
-}
-
+/* Rest of the styles remain unchanged */
 .course-dashboard {
     padding: 40px; /* More padding for larger center space */
     background-color: #d7e0eb; /* Light background color */
@@ -148,7 +128,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    
 }
 
 .footer {

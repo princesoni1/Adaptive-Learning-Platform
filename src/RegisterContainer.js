@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { db, auth } from "./firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"; 
 
 const Container = styled.div`
   width: 300px;
@@ -69,29 +69,30 @@ const RegisterContainer = ({ onFlip }) => {
     const { name, email, password, mobile, learnerType, languagePreference } = formData;
 
     try {
-      // Register user with Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Register user with Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid; // Get the user's UID
 
-      // Store additional user data in Firestore
-      await addDoc(collection(db, "users"), {
-        uid: userCredential.user.uid,
-        name,
-        email,
-        mobile,
-        learnerType,
-        languagePreference,
-        createdAt: new Date(),
-      });
+        // Store additional user data in Firestore using the UID as the document ID
+        await setDoc(doc(db, "users", uid), { // Set the document ID to the user's UID
+            uid, // Optional, since it's already in the document ID
+            name,
+            email,
+            mobile,
+            learnerType,
+            languagePreference,
+            createdAt: new Date(),
+        });
 
-      alert("Registration successful!");
+        alert("Registration successful!");
 
-      // Optionally redirect or flip back to login
-      onFlip();
+        // Optionally redirect or flip back to login
+        onFlip();
     } catch (error) {
-      console.error("Error registering user:", error);
-      alert("Failed to register. Please try again.");
+        console.error("Error registering user:", error);
+        alert("Failed to register. Please try again.");
     }
-  };
+};
 
   return (
     <Container>
@@ -101,13 +102,13 @@ const RegisterContainer = ({ onFlip }) => {
       <Input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleInputChange} />
       <Input type="text" name="mobile" placeholder="Mobile Number" value={formData.mobile} onChange={handleInputChange} />
       <Select name="learnerType" value={formData.learnerType} onChange={handleInputChange}>
-        <option value="slow">Slow Learner</option>
-        <option value="average">Average Learner</option>
-        <option value="fast">Fast Learner</option>
+        <option value="Slow">Slow Learner</option>
+        <option value="Average">Average Learner</option>
+        <option value="Fast">Fast Learner</option>
       </Select>
       <Select name="languagePreference" value={formData.languagePreference} onChange={handleInputChange}>
-        <option value="english">English</option>
-        <option value="hindi">Hindi</option>
+        <option value="English">English</option>
+        <option value="Hindi">Hindi</option>
       </Select>
       <Button onClick={handleRegister}>Register</Button>
       <BackButton onClick={onFlip}>Back to Login</BackButton>

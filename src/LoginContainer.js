@@ -53,23 +53,25 @@ const LoginContainer = ({ onFlip }) => {
 
   const handleLogin = async () => {
     try {
-      // Log in user with Firebase Authentication
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-  
-      if (user.email === "r@gmail.com") {
-        alert("Admin login successful!");
-        navigate('/admindashboard'); // Redirect to AdminDashboard if admin email
-      } else {
-        alert("Login successful!");
-        navigate('/coursedashboard'); // Redirect to CourseDashboard for regular users
-      }
-  
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Clear input fields after successful login
+        setEmail(""); 
+        setPassword(""); 
+
+        if (user.email === "r@gmail.com") {
+            alert("Admin login successful!");
+            navigate('/admindashboard'); // Redirect to AdminDashboard
+        } else {
+            alert("Login successful!");
+            navigate('/coursedashboard'); // Redirect to CourseDashboard
+        }
     } catch (error) {
-      console.error("Error logging in:", error);
-      alert("Failed to login. Please check your credentials.");
+        console.error("Error logging in:", error);
+        alert("Failed to login. Please check your credentials.");
     }
-  };
+};
 
   return (
     <Container>
