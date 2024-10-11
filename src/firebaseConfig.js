@@ -25,6 +25,10 @@ export { storage };
 
 // Set authentication persistence
 setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Persistence set to local storage");
+  })
   .catch((error) => {
-    console.error("Error setting persistence:", error);
+    console.error("Error setting persistence:", error); // Log any errors during persistence setup
   });
+

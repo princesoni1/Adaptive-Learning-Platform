@@ -1,31 +1,20 @@
-// src/LoginPage.js
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { Flipper, Flipped } from "react-flip-toolkit";
 import LoginContainer from "./LoginContainer";
 import RegisterContainer from "./RegisterContainer";
 
-// Gradient background animation (subtle change)
+// Gradient animation for background
 const gradientAnimation = keyframes`
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 `;
 
-// Define the rotation animation using keyframes
+// Rotation animation for rotating logo
 const rotateAnimation = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 `;
 
 const PageWrapper = styled.div`
@@ -42,73 +31,47 @@ const LeftSide = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden;
 `;
 
 const LogoWrapper = styled.div`
-  position: relative;
-  text-align: center; /* Center both the logo and the tagline */
-  width: 400px; /* Adjust the size of the logo */
-  height: auto;
+  text-align: center;
+  width: 400px;
 `;
 
 const Logo = styled.img`
-  width: 300px; /* Adjusted to make the logo fit better */
-  height: auto;
+  width: 300px;
   position: relative;
-  z-index: 2; /* Places LogoName on top */
-  display: block;
-  margin: 0 auto;
+  z-index: 2;
 `;
 
 const RotatingLogo = styled.img`
   width: 220px;
-  height: 220px;
-  animation: ${rotateAnimation} 15s linear infinite; /* Adjusted rotation speed */
+  animation: ${rotateAnimation} 15s linear infinite;
   position: absolute;
   top: 40px;
-  left: calc(50% - 110px); /* Center the rotating cube relative to LogoWrapper */
-  z-index: 1; /* Places CubeLogo behind LogoName */
-  opacity: 0.5; /* Adjust transparency */
+  left: calc(50% - 110px);
+  z-index: 1;
+  opacity: 0.5;
 `;
-
-// const Tagline = styled.p`
-//   font-family: "Roboto", sans-serif; /* Choose a modern, clean font */
-//   font-size: 1.5rem; /* Adjust font size */
-//   color: #181C6C; /* White color for better contrast */
-//   margin-top: -35px; /* Space between logo and tagline */
-//   font-weight: 350; /* Light font weight */
-//   text-align: center; /* Center the tagline */
-//   letter-spacing: 1px; /* Spacing to make the tagline look more professional */
-// `;
 
 const RightSide = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('/image.png'); /* Path to your image */
-  background-size: cover; /* Ensures the image covers the entire area */
-  background-position: center; /* Centers the image */
-  background-repeat: no-repeat; /* Prevents the image from repeating */
-  position: relative;
+  background: url('/image.png') center / cover no-repeat;
 `;
 
 const LoginPage = () => {
   const [showLogin, setShowLogin] = useState(true);
-
-  const handleFlip = () => setShowLogin(!showLogin);
+  const toggleForm = () => setShowLogin(!showLogin);
 
   return (
     <PageWrapper>
       <LeftSide>
         <LogoWrapper>
-          {/* Rotating CubeLogo image */}
           <RotatingLogo src="CubeLogo.png" alt="Rotating Cube Logo" />
-          {/* Static LogoName image */}
           <Logo src="LogoName.png" alt="Adaptive Learning Logo" />
-          {/* Tagline added below the logo */}
-          {/* <Tagline>Personalized education for all</Tagline> */}
         </LogoWrapper>
       </LeftSide>
 
@@ -117,9 +80,9 @@ const LoginPage = () => {
           <Flipped flipId="form">
             <div>
               {showLogin ? (
-                <LoginContainer onFlip={handleFlip} />
+                <LoginContainer onFlip={toggleForm} />
               ) : (
-                <RegisterContainer onFlip={handleFlip} />
+                <RegisterContainer onFlip={toggleForm} />
               )}
             </div>
           </Flipped>
