@@ -75,7 +75,9 @@ const UserDetails = () => {
 
     const handleLogout = async () => {
         try {
-            await signOut(auth);  // Sign out the user
+            await signOut(auth);  // Sign out from Firebase
+            localStorage.clear(); // Clear localStorage
+            sessionStorage.clear(); // Clear sessionStorage (if you're using it)
             navigate('/login');   // Redirect to login page
         } catch (error) {
             console.error("Error signing out: ", error);

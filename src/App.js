@@ -8,6 +8,19 @@ import CourseDashboard from './CourseDashboard';
 import VideoPage from './VideoPage';
 import UserDetails from './UserDetails';
 
+const ProtectedRoute = ({ user, roleCheck, children }) => {
+    if (!user) {
+        return <Navigate to="/login" />;
+    }
+
+    // If the role check passes, allow access, otherwise redirect
+    if (roleCheck && !roleCheck(user)) {
+        return <Navigate to="/" />;
+    }
+
+    return children;
+};
+
 const App = () => {
     const [user, setUser] = useState(null); // State to hold user info
     const [loading, setLoading] = useState(true); // New loading state
@@ -27,10 +40,6 @@ const App = () => {
         return () => unsubscribe(); // Cleanup subscription on unmount
     }, []);
 
-    useEffect(() => {
-        console.log("User state updated:", user);
-    }, [user]);
-
     if (loading) {
         return <div>Loading...</div>; // Show loading screen while checking auth state
     }
@@ -38,20 +47,54 @@ const App = () => {
     return (
         <Router>
             <Routes>
+                {/* Public routes */}
                 <Route path="/" element={<LoginPage />} />
                 <Route path="/login" element={<LoginPage />} />
-                {/* Redirect to AdminDashboard if user is admin */}
+
+                {/* Protected routes for admin */}
                 <Route
                     path="/admindashboard"
-                    element={user && user.email === "r@gmail.com" ? <AdminDashboard /> : <Navigate to="/" />}
+                    element={
+                        <ProtectedRoute
+                            user={user}
+                            roleCheck={(user) => user.email === "r@gmail.com"} // Ensure only admin can access
+                        >
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    }
                 />
-                {/* Redirect to CourseDashboard if user is a regular user */}
+
+                {/* Protected routes for regular users */}
                 <Route
                     path="/coursedashboard"
-                    element={user && user.email !== "r@gmail.com" ? <CourseDashboard /> : <Navigate to="/" />}
+                    element={
+                        <ProtectedRoute
+                            user={user}
+                            roleCheck={(user) => user.email !== "r@gmail.com"} // Ensure non-admin can access
+                        >
+                            <CourseDashboard />
+                        </ProtectedRoute>
+                    }
                 />
-                <Route path="/videopage" element={<VideoPage />} />
-                <Route path="/userdetails" element={<UserDetails />} />
+
+                {/* Common protected routes */}
+                <Route
+                    path="/videopage"
+                    element={
+                        <ProtectedRoute user={user}>
+                            <VideoPage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/userdetails"
+                    element={
+                        <ProtectedRoute user={user}>
+                            <UserDetails />
+                        </ProtectedRoute>
+                    }
+                />
             </Routes>
         </Router>
     );
