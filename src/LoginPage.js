@@ -1,20 +1,31 @@
+// src/LoginPage.js
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { Flipper, Flipped } from "react-flip-toolkit";
 import LoginContainer from "./LoginContainer";
 import RegisterContainer from "./RegisterContainer";
 
-// Gradient animation for background
+// Gradient background animation (subtle change)
 const gradientAnimation = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 `;
 
-// Rotation animation for rotating logo
+// Define the rotation animation using keyframes
 const rotateAnimation = keyframes`
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 `;
 
 const PageWrapper = styled.div`
@@ -31,47 +42,64 @@ const LeftSide = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
+  overflow: hidden;
 `;
 
 const LogoWrapper = styled.div`
-  text-align: center;
-  width: 400px;
+  position: relative;
+  text-align: center; /* Center both the logo and the tagline */
+  width: 400px; /* Adjust the size of the logo */
+  height: auto;
 `;
 
 const Logo = styled.img`
-  width: 300px;
+  width: 300px; /* Adjusted to make the logo fit better */
+  height: auto;
   position: relative;
-  z-index: 2;
+  z-index: 2; /* Places LogoName on top */
+  display: block;
+  margin: 0 auto;
 `;
 
 const RotatingLogo = styled.img`
   width: 220px;
-  animation: ${rotateAnimation} 15s linear infinite;
+  height: 220px;
+  animation: ${rotateAnimation} 15s linear infinite; /* Adjusted rotation speed */
   position: absolute;
   top: 40px;
-  left: calc(50% - 110px);
-  z-index: 1;
-  opacity: 0.5;
+  left: calc(50% - 110px); /* Center the rotating cube relative to LogoWrapper */
+  z-index: 1; /* Places CubeLogo behind LogoName */
+  opacity: 0.5; /* Adjust transparency */
 `;
+
 
 const RightSide = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('/image.png') center / cover no-repeat;
+  background-image: url('/image.png'); /* Path to your image */
+  background-size: cover; /* Ensures the image covers the entire area */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from repeating */
+  position: relative;
 `;
 
 const LoginPage = () => {
   const [showLogin, setShowLogin] = useState(true);
-  const toggleForm = () => setShowLogin(!showLogin);
+
+  const handleFlip = () => setShowLogin(!showLogin);
 
   return (
     <PageWrapper>
       <LeftSide>
         <LogoWrapper>
+          {/* Rotating CubeLogo image */}
           <RotatingLogo src="CubeLogo.png" alt="Rotating Cube Logo" />
+          {/* Static LogoName image */}
           <Logo src="LogoName.png" alt="Adaptive Learning Logo" />
+          {/* Tagline added below the logo */}
+          {/* <Tagline>Personalized education for all</Tagline> */}
         </LogoWrapper>
       </LeftSide>
 
@@ -80,9 +108,9 @@ const LoginPage = () => {
           <Flipped flipId="form">
             <div>
               {showLogin ? (
-                <LoginContainer onFlip={toggleForm} />
+                <LoginContainer onFlip={handleFlip} />
               ) : (
-                <RegisterContainer onFlip={toggleForm} />
+                <RegisterContainer onFlip={handleFlip} />
               )}
             </div>
           </Flipped>

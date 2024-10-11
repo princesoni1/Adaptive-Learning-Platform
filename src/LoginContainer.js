@@ -1,8 +1,10 @@
+// src/LoginContainer.js
 import React, { useState } from "react";
 import styled from "styled-components";
 import { auth } from "./firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+
 
 const Container = styled.div`
   width: 300px;
@@ -11,6 +13,8 @@ const Container = styled.div`
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  position: relative;
+  z-index: 1; /* Ensures the container is above the background */
 `;
 
 const Title = styled.h2`
@@ -20,7 +24,7 @@ const Title = styled.h2`
 const Input = styled.input`
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
+  margin: 10px -10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 `;
@@ -44,25 +48,30 @@ const RegisterButton = styled(Button)`
 const LoginContainer = ({ onFlip }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize useNavigate
+
 
   const handleLogin = async () => {
     try {
-      const { user } = await signInWithEmailAndPassword(auth, email, password);
-      setEmail("");
-      setPassword("");
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-      if (user.email === "r@gmail.com") {
-        alert("Admin login successful!");
-        navigate('/admindashboard');
-      } else {
-        alert("Login successful!");
-        navigate('/coursedashboard');
-      }
+        // Clear input fields after successful login
+        setEmail(""); 
+        setPassword(""); 
+
+        if (user.email === "r@gmail.com") {
+            alert("Admin login successful!");
+            navigate('/admindashboard'); // Redirect to AdminDashboard
+        } else {
+            alert("Login successful!");
+            navigate('/coursedashboard'); // Redirect to CourseDashboard
+        }
     } catch (error) {
-      alert("Failed to login. Please check your credentials.");
+        console.error("Error logging in:", error);
+        alert("Failed to login. Please check your credentials.");
     }
-  };
+};
 
   return (
     <Container>
