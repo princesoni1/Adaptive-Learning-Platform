@@ -21,7 +21,7 @@ const storage = getStorage(app);
 // Initialize Firestore and Authentication
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export { storage };
+export {storage};
 
 // Set authentication persistence
 setPersistence(auth, browserLocalPersistence)

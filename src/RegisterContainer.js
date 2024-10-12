@@ -56,8 +56,8 @@ const RegisterContainer = ({ onFlip }) => {
     email: "",
     password: "",
     mobileNumber: "",
-    learnerType: "average",
-    languagePreference: "english",
+    learnerType: "Average",
+    languagePreference: "English",
   });
 
   const handleInputChange = (e) => {

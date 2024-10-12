@@ -1,73 +1,70 @@
 import React, { useState, useEffect } from "react";
 import { createUserWithEmailAndPassword, deleteUser, getAuth, signOut } from "firebase/auth";
-import { getFirestore, collection, getDocs } from "firebase/firestore"; 
+import { collection, getDocs, doc, setDoc } from "firebase/firestore"; 
 import styled from "styled-components";
+import { db } from './firebaseConfig'; // Import Firestore config as db
 
-
-const db = getFirestore();
 
 const AdminDashboard = () => {
-  const [activePanel, setActivePanel] = useState("courses"); // Track the active panel
-  const [courses, setCourses] = useState([]);
+  const [activePanel, setActivePanel] = useState("courses");
+  const [courses, setCourses] = useState([]); // Initialize as an empty array
   const [file, setFile] = useState(null);
+  const [newUserName, setNewUserName] = useState(""); // New user name
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserMobile, setNewUserMobile] = useState(""); // New user mobile
+  const [newUserLearnerType, setNewUserLearnerType] = useState("slow"); // New user learner type
+  const [newUserLanguagePreference, setNewUserLanguagePreference] = useState("english"); // New user language preference
   const [users, setUsers] = useState([]);
-  const [numCourses, setNumCourses] = useState(0);
   const [numUsers, setNumUsers] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-
-  // Fetch courses from Google Cloud Storage
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await fetch(`https://storage.googleapis.com/storage/v1/b/als-courses/o?prefix=Main-Course-Folder/`);
-        const data = await response.json();
-        
-        const courses = data.items
-          .filter(item => item.name.endsWith('.mp4') && item.name.includes('Course_'))
-          .map(course => ({
-            name: course.name.replace('Main-Course-Folder/', '').replace('.mp4', ''), // Remove the '.mp4' extension
-            filePath: course.name,
-            thumbnail: `https://storage.googleapis.com/als-courses/course-thumbnails/${course.name.replace('Main-Course-Folder/', '').replace('.mp4', '')}.jpg`
-          }));
-        
-        console.log(courses); // Check if course data is correct
-        setCourses(courses);
-        setNumCourses(courses.length); // Set the number of courses
-      } catch (error) {
-        console.error('Error fetching course files:', error);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
-
- // Fetch users from Firebase Authentication
-const fetchUsers = async () => {
+  const fetchCourses = async () => {
+    setLoading(true);
     try {
-      const usersCollection = collection(db, "users"); // Change 'users' to your collection name
-      const userSnapshot = await getDocs(usersCollection);
-      const userList = userSnapshot.docs.map(doc => ({
-        uid: doc.id, // Make sure to include 'uid' for deletion
-        ...doc.data() // Assuming each document has fields: email, language, and name
-      }));
-      console.log(userList)
-      setUsers(userList); // Update the state with fetched users
-      setNumUsers(userList.length); // Set the number of users
+      const response = await fetch(`https://storage.googleapis.com/storage/v1/b/als-courses/o?prefix=Main-Course-Folder/`);
+      const data = await response.json();
+
+      const courseList = data.items
+        .filter(item => item.name.endsWith('.mp4') && item.name.includes('Course_'))
+        .map(course => ({
+          name: course.name.replace('Main-Course-Folder/', '').replace('.mp4', ''),
+          filePath: course.name,
+          thumbnail: `https://storage.googleapis.com/als-courses/course-thumbnails/${course.name.replace('Main-Course-Folder/', '').replace('.mp4', '')}.jpg`
+        }));
+
+      setCourses(courseList); // Set the array of course objects
     } catch (error) {
-      console.error("Error fetching users: ", error);
+      console.error('Error fetching course files:', error);
+    } finally {
+      setLoading(false);
     }
   };
-  
-  
 
   useEffect(() => {
-    fetchUsers(); // Call the fetchUsers function only once when the component mounts
-  }, []); // Empty dependency array
-  
-  // Upload new course to Google Cloud
+    fetchCourses();
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const usersCollection = collection(db, "users");
+      const userSnapshot = await getDocs(usersCollection);
+      const userList = userSnapshot.docs.map(doc => ({
+        uid: doc.id,
+        ...doc.data(), // Ensure data fields like name, email, etc., are retrieved
+      }));
+      console.log(userList); // For debugging, check if userList contains correct data
+      setUsers(userList); // Set the user list to the state
+      setNumUsers(userList.length); // Set number of users
+    } catch (error) {
+      console.error("Error fetching users: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleUpload = async () => {
     if (!file) {
       alert("Please select a file before uploading.");
@@ -75,7 +72,6 @@ const fetchUsers = async () => {
     }
 
     try {
-      // Step 1: Request a signed URL from your backend, providing the file name
       const response = await fetch(`http://localhost:8080/generate-signed-url?fileName=${file.name}`);
       const { url } = await response.json();
 
@@ -83,7 +79,6 @@ const fetchUsers = async () => {
         throw new Error("Failed to retrieve signed URL");
       }
 
-      // Step 2: Upload the file to the signed URL
       const uploadResponse = await fetch(url, {
         method: "PUT",
         headers: {
@@ -93,6 +88,7 @@ const fetchUsers = async () => {
       });
       if (uploadResponse.ok) {
         alert("File uploaded successfully!");
+        fetchCourses(); // Refresh the course list
       } else {
         throw new Error("Upload failed");
       }
@@ -102,40 +98,79 @@ const fetchUsers = async () => {
     }
   };
 
-  // Add a new user
   const handleAddUser = async () => {
-    try {
-      const authInstance = getAuth();
-      await createUserWithEmailAndPassword(authInstance, newUserEmail, newUserPassword);
-      alert("User added successfully!");
-      setNewUserEmail("");
-      setNewUserPassword("");
-      fetchUsers(); // Refresh user list after adding a user
-    } catch (error) {
-      console.error("Error adding user:", error);
-      alert("Failed to add user.");
+    // Admin check (if current user is authenticated and admin)
+    const currentUser = getAuth().currentUser;
+    console.log('New User0:', getAuth().currentUser)
+    if (!currentUser || currentUser.email !== "r@gmail.com") {
+        alert("Only the admin can add new users.");
+        return;
     }
-  };
 
-  // Delete a user
+    // Check if email and password are provided
+    if (!newUserEmail || !newUserPassword) {
+        alert("Email and password are required.");
+        return;
+    }
+
+    try {
+        const authInstance = getAuth();
+        // Create new user with Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(authInstance, newUserEmail, newUserPassword);
+        const newUser = userCredential.user; // Get the new user's information (uid, email, etc.)
+
+        // Prepare user data to be saved in Firestore
+        const userData = {
+            uid: newUser.uid,  // The user's unique ID
+            name: newUserName,
+            email: newUserEmail,
+            mobile: newUserMobile,
+            learnerType: newUserLearnerType,
+            languagePreference: newUserLanguagePreference,
+        };
+        console.log('New User1:', getAuth().currentUser)
+        // Save the new user's data to Firestore under /users/{uid}
+        await setDoc(doc(db, "users", newUser.uid), userData);
+        console.log('New User2:', getAuth().currentUser)
+        alert("User added successfully!");
+        console.log('New User3:', getAuth().currentUser)
+        // Reset input fields after successful addition
+        setNewUserName("");
+        setNewUserEmail("");
+        setNewUserPassword("");
+        setNewUserMobile("");
+        setNewUserLearnerType("Slow"); // Reset learner type to default
+        setNewUserLanguagePreference("English"); // Reset language preference to default
+        fetchUsers(); // Optionally refresh the users list or perform other actions
+    } catch (error) {
+        console.error("Error adding user:", error.message);
+        alert(`Failed to add user: ${error.message}`);
+    }
+};
+
+
   const handleDeleteUser = async (uid) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
     try {
       const authInstance = getAuth();
       const user = await authInstance.getUser(uid);
       await deleteUser(user);
       alert("User deleted successfully!");
-      fetchUsers(); // Refresh user list after deletion
+      fetchUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
       alert("Failed to delete user.");
     }
   };
+
   const handleLogout = async () => {
     try {
       const authInstance = getAuth();
       await signOut(authInstance);
-      // Redirect to the login page after successful logout
-      window.location.href = "/login"; // Make sure your login route is correct
+      localStorage.clear(); // Clear localStorage
+      sessionStorage.clear(); // Clear sessionStorage (if you're using it)
+      window.location.href = "/login"; // Redirect to login page after logout
     } catch (error) {
       console.error("Error logging out: ", error);
       alert("Failed to logout.");
@@ -150,53 +185,62 @@ const fetchUsers = async () => {
           <AdminName>Admin Name</AdminName>
         </AdminProfile>
 
-        <SidebarButton onClick={() => setActivePanel("courses")}>Courses</SidebarButton>
-        <SidebarButton onClick={() => setActivePanel("users")}>Users</SidebarButton>
-        <SidebarButton onClick={() => setActivePanel("analytics")}>Analytics</SidebarButton>
+        <SidebarButton onClick={() => setActivePanel("courses")}>Add New Courses</SidebarButton>
+        <SidebarButton onClick={() => setActivePanel("users")}>Manage Users</SidebarButton>
+        <SidebarButton onClick={() => setActivePanel("analytics")}>User Analytics</SidebarButton>
+        <SidebarButton onClick={() => setActivePanel("learnerQuery")}>Learner Query</SidebarButton>
+        <SidebarButton onClick={handleLogout}>Logout</SidebarButton>
       </Sidebar>
 
-      <Headbar>
-        <HeadbarTitle>Admin Dashboard</HeadbarTitle>
-        <HeadbarActions>
-          <NotificationIcon />
-          <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
-        </HeadbarActions>
-      </Headbar>
-
       <ContentContainer>
-        <DashboardTitle>Admin Dashboard</DashboardTitle>
-
-        {activePanel === "courses" ? (
+        {loading ? (
+          <LoadingMessage>Loading...</LoadingMessage>
+        ) : activePanel === "courses" ? (
           <>
-            {/* Upload New Course Section */}
-            <Section>
-              <SectionTitle>Upload New Course</SectionTitle>
-              <UploadContainer>
-                <Input type="file" onChange={(e) => setFile(e.target.files[0])} />
-                <UploadButton onClick={handleUpload}>Upload Course</UploadButton>
-              </UploadContainer>
+            <Section style={styles.section}>
+              <SectionTitle style={styles.sectionTitle}>Upload New Course</SectionTitle>
+              <div style={styles.uploadContainer}>
+                <input
+                  type="file"
+                  style={styles.input}
+                  onChange={(e) => setFile(e.target.files[0])}
+                />
+                <button style={styles.uploadButton} onClick={handleUpload}>
+                  Upload Course
+                </button>
+              </div>
             </Section>
 
-            {/* List Uploaded Courses Section */}
             <Section>
               <SectionTitle>Uploaded Courses</SectionTitle>
               <CourseList>
                 {courses.map((course, index) => (
-                  <CourseItem key={index}>
-                    <CourseLink href={course.filePath} target="_blank" rel="noopener noreferrer">
-                      {course.name}
+                  <CourseCard key={index}>
+                    <Thumbnail src={course.thumbnail} alt={`${course.name} thumbnail`} />
+                    <CourseTitle>{course.name}</CourseTitle>
+                    <CourseLink href={`https://storage.googleapis.com/als-courses/${course.filePath}`} target="_blank" rel="noopener noreferrer">
+                      View Course
                     </CourseLink>
-                  </CourseItem>
+                  </CourseCard>
                 ))}
               </CourseList>
             </Section>
           </>
         ) : activePanel === "users" ? (
           <>
-            {/* Manage Users Section */}
             <Section>
-              <SectionTitle>Add New User</SectionTitle>
+            <SectionTitle>Add New User</SectionTitle>
+            <AddUserBox>
               <AddUserContainer>
+                <InputWrapper>
+                  <Label>Name:</Label>
+                  <Input
+                    type="text"
+                    placeholder="New user name"
+                    value={newUserName}
+                    onChange={(e) => setNewUserName(e.target.value)}
+                  />
+                </InputWrapper>
                 <InputWrapper>
                   <Label>Email:</Label>
                   <Input
@@ -215,11 +259,42 @@ const fetchUsers = async () => {
                     onChange={(e) => setNewUserPassword(e.target.value)}
                   />
                 </InputWrapper>
+                <InputWrapper>
+                  <Label>Mobile:</Label>
+                  <Input
+                    type="text"
+                    placeholder="New user mobile"
+                    value={newUserMobile}
+                    onChange={(e) => setNewUserMobile(e.target.value)}
+                  />
+                </InputWrapper>
+                <InputWrapper>
+                  <Label>Learner Type:</Label>
+                  <Select
+                    value={newUserLearnerType}
+                    onChange={(e) => setNewUserLearnerType(e.target.value)}
+                  >
+                    <option value="Slow">Slow</option>
+                    <option value="Average">Average</option>
+                    <option value="Fast">Fast</option>
+                  </Select>
+                </InputWrapper>
+                <InputWrapper>
+                  <Label>Language Preference:</Label>
+                  <Select
+                    value={newUserLanguagePreference}
+                    onChange={(e) => setNewUserLanguagePreference(e.target.value)}
+                  >
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                  </Select>
+                </InputWrapper>
                 <AddUserButton onClick={handleAddUser}>Submit</AddUserButton>
               </AddUserContainer>
+            </AddUserBox>
             </Section>
 
-            {/* List of Users Section */}
+
             <Section>
               <SectionTitle>User List</SectionTitle>
               <UserTable>
@@ -257,289 +332,283 @@ const fetchUsers = async () => {
             </Section>
           </>
         ) : (
-          <>
-            {/* Analytics Section */}
-            <Section>
-              <SectionTitle>Analytics</SectionTitle>
-              <AnalyticsContainer>
-                <AnalyticsCard>
-                  <CardTitle>Number of Courses</CardTitle>
-                  <CardValue>{numCourses}</CardValue>
-                </AnalyticsCard>
-                <AnalyticsCard>
-                  <CardTitle>Number of Users</CardTitle>
-                  <CardValue>{numUsers}</CardValue>
-                </AnalyticsCard>
-              </AnalyticsContainer>
-            </Section>
-          </>
+          <Section>
+            <SectionTitle>Analytics Section</SectionTitle>
+            <AnalyticsContainer>
+              <AnalyticsMessage>Total Users: {numUsers}</AnalyticsMessage>
+              <AnalyticsMessage>Total Courses: {courses.length}</AnalyticsMessage>
+            </AnalyticsContainer>
+          </Section>
         )}
       </ContentContainer>
     </DashboardContainer>
   );
-
 };
 
 export default AdminDashboard;
 
-// Styled Components
+// Styled components (same as before)
+
+
+// Styled components
 const DashboardContainer = styled.div`
-  display: flex; /* Use flexbox for layout */
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0; /* Remove padding for full width */
-  height: 100vh; /* Full height for the dashboard */
-  overflow-y:hidden;
-`;
-
-const Headbar = styled.div`
-  height: 60px;
-  margin-left:45px;
-  background-color: #003366;
-  color: white;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  left: 200px; /* Starts next to the sidebar */
-  right: 0; /* Full width */
-  z-index: -1; /* Ensure it appears above the content */
-`;
-
-const HeadbarTitle = styled.h2`
-  margin: 0;
-  margin-left: 30px;
-  font-size: 20px;
-`;
-
-const HeadbarActions = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const NotificationIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  margin-right: 20px;
-  background: url('/path/to/notification/icon.png') no-repeat center center;
-  background-size: contain;
-  cursor: pointer;
-`;
-
-const LogoutButton = styled.button`
-  padding: 8px 15px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  height: 100vh;
+  background-color: #f5f5f5;
 `;
 
 const Sidebar = styled.div`
-  width: 200px; /* Fixed width for the sidebar */
-  height: 100vh; /* Full height for the sidebar */
-  background: #f4f4f4;
+  width: 210px;
+  background-color: #181c6c;
   padding: 20px;
-  border-radius: 0 8px 8px 0; /* Rounded corners on the right */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: fixed; /* Fix the sidebar to the left */
-  top: 0; /* Align to the top */
-  left: 0; /* Align to the left */
+  color: white;
+  height: calc(100vh - 60px); // Full height minus the headbar height
+  position: fixed; // Keep sidebar fixed
+  top: 0px; // Position below the headbar
+  left: 0;
+  display: flex; // Use flexbox for layout
+  flex-direction: column; // Stack items vertically
 `;
+
 const AdminProfile = styled.div`
   display: flex;
-  align-items: center;
-  margin-bottom: 20px;
+  flex-direction: column; /* Stack icon and name vertically */
+  align-items: center; /* Center icon and name horizontally */
+  margin-bottom: 30px;
 `;
+
 
 const AdminIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background-color: #003366;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 18px;
-  margin-right: 10px;
+  font-size: 60px; /* Increase the icon size */
+  margin-bottom: 10px; /* Add spacing between icon and name */
 `;
 
-const AdminName = styled.span`
-  font-size: 16px;
-  font-weight: bold;
-  color: #003366;
+const AdminName = styled.div`
+  font-size: 20px;
+  text-align: center; /* Center the admin name text */
 `;
 
 const SidebarButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #003366;
-  color: white;
+  background-color: white; /* Change background to white */
+  color: #181c6c; /* Text color to match theme */
   border: none;
-  border-radius: 5px;
+  font-size: 18px;
+  padding: 15px 20px; /* Adjust padding for a larger box */
+  margin-bottom: 15px; /* Add spacing between buttons */
+  border-radius: 5px; /* Add rounded corners */
   cursor: pointer;
+  text-align: left;
+  width: 100%; /* Make the button take full width */
+  
+  &:hover {
+    background-color: #34495e; /* Optional hover effect */
+    color: white; /* Change text color on hover */
+  }
+
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow */
 `;
+
 
 const ContentContainer = styled.div`
   flex: 1;
-  margin-left: 200px; /* Reserve space for the sidebar */
-  margin-top: 60px; /* Reserve space for the headbar */
+  margin-left: 250px; // Leave space for sidebar
+  margin-top: 60px; // Leave space for headbar
   padding: 20px;
-  height: calc(100vh - 60px); /* Full height minus the height of the headbar */
-  overflow-y: auto; /* Enable scrolling if content exceeds the available height */
+  overflow-y: auto; // Allow scrolling
 `;
 
 
-const DashboardTitle = styled.h1`
-  text-align: center;
-  margin-bottom: 40px;
-  color: #003366;
+const LoadingMessage = styled.p`
+  font-size: 18px;
 `;
 
-const Section = styled.div`
-  margin-bottom: 40px;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  margin-bottom: 20px;
-  color: #003366;
-`;
-
-const UploadContainer = styled.div`
-  display: flex;
-  flex-direction: column; /* Align elements in a column */
-`;
 
 const CourseList = styled.ul`
-  list-style: none;
-  padding: 0; /* Remove default padding */
+  list-style-type: none;
+  padding: 0;
 `;
 
-const CourseItem = styled.li`
-  margin: 10px 0;
+
+const CourseCard = styled.div`
+  width: 250px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  text-align: center;
+  padding: 20px;
+`;
+
+const Thumbnail = styled.img`
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  margin-bottom: 15px;
+`;
+
+const CourseTitle = styled.h3`
+  font-size: 18px;
+  margin-bottom: 10px;
 `;
 
 const CourseLink = styled.a`
+  color: #2980b9;
   text-decoration: none;
-  color: #003366; /* Link color */
-  font-weight: bold; /* Bold text */
-`;
+  font-weight: bold;
 
-const Input = styled.input`
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-bottom: 20px; /* Space between inputs */
-`;
-
-const UploadButton = styled.button`
-  background-color: #28a745; /* Green button */
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-`;
-
-const AddUserContainer = styled.div`
-  display: flex;
-  flex-direction: column; /* Align elements in a column */
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: column; /* Align elements in a column */
-`;
-
-const Label = styled.label`
-  margin-bottom: 5px;
-`;
-
-const AddUserButton = styled.button`
-  background-color: #28a745; /* Green button */
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-`;
-
-// const UserList = styled.ul`
-//   list-style: none;
-//   padding: 0; /* Remove default padding */
-// `;
-
-// const UserItem = styled.li`
-//   display: flex;
-//   justify-content: space-between; /* Space out email and delete button */
-//   margin: 10px 0;
-//   padding: 10px; /* Add some padding */
-//   background: #f9f9f9; /* Light background for users */
-//   border-radius: 5px; /* Rounded corners */
-// `;
-
-const DeleteButton = styled.button`
-  background-color: #dc3545; /* Red button */
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const UserTable = styled.table`
   width: 100%;
-  table-layout: auto; /* Allow table to adjust based on content */
   border-collapse: collapse;
 `;
 
-
 const TableHeader = styled.th`
-  background-color: #003366; /* Header background color */
-  color: white; /* Header text color */
-  padding: 10px; /* Padding for header cells */
-  text-align: left; /* Align text to the left */
-  white-space: nowrap; /* Prevent text from wrapping */
+  background-color: #34495e;
+  color: white;
+  padding: 10px;
 `;
 
 const TableData = styled.td`
-  padding: 10px;
   border: 1px solid #ddd;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 10px;
+`;
+
+const DeleteButton = styled.button`
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #c0392b;
+  }
 `;
 
 const AnalyticsContainer = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const AnalyticsCard = styled.div`
-  background: #f8f9fa;
-  border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #ecf0f1;
+  border-radius: 5px;
+`;
+
+const AnalyticsMessage = styled.p`
+  font-size: 18px;
   text-align: center;
-  flex: 1; /* Allow cards to grow equally */
 `;
 
-const CardTitle = styled.h3`
-  color: #003366;
-  margin-bottom: 10px;
+const AddUserBox = styled.div`
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
-const CardValue = styled.p`
-  font-size: 2rem;
-  font-weight: bold;
-  color: #007bff;
+const AddUserContainer = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
+
+const InputWrapper = styled.div`
+  margin-bottom: 15px;
+`;
+
+const Label = styled.label`
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 16px;
+`;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 16px;
+`;
+
+const AddUserButton = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+const Section = styled.section`
+  margin: 20px;
+`;
+
+const SectionTitle = styled.h2`
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+`;
+
+const styles = {
+  section: {
+    border: "2px solid #ddd",
+    borderRadius: "10px",
+    padding: "20px",
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    maxWidth: "500px",
+    margin: "20px auto",
+    textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: "1.8em",
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: "20px",
+  },
+  uploadContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  input: {
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    marginBottom: "15px",
+    width: "100%",
+    fontSize: "1em",
+  },
+  uploadButton: {
+    padding: "10px 20px",
+    backgroundColor: "#007BFF",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "1em",
+    transition: "background-color 0.3s",
+  },
+};
+
+styles.uploadButton[':hover'] = {
+  backgroundColor: "#0056b3",
+};

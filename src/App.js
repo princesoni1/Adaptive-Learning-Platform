@@ -9,17 +9,32 @@ import VideoPage from './VideoPage';
 import UserDetails from './UserDetails';
 
 const ProtectedRoute = ({ user, roleCheck, children }) => {
+    // Check if the user is logged in
     if (!user) {
+        console.log('User Details Changed: User is not authenticated.');
         return <Navigate to="/login" />;
     }
 
-    // If the role check passes, allow access, otherwise redirect
-    if (roleCheck && !roleCheck(user)) {
-        return <Navigate to="/" />;
+    // Log user details
+    console.log('User Details:', user);
+
+    // Check if role check function is provided
+    if (roleCheck) {
+        const isRoleValid = roleCheck(user);
+        console.log('User',user)
+        console.log('Role Check:', isRoleValid ? 'User has the required role.' : 'User does not have the required role.');
+        
+        // If the role check fails, redirect to the home page
+        if (!isRoleValid) {
+            return <Navigate to="/" />;
+        }
+    } else {
+        console.log('No role check function provided.');
     }
 
     return children;
 };
+
 
 const App = () => {
     const [user, setUser] = useState(null); // State to hold user info

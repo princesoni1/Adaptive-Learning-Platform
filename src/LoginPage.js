@@ -69,7 +69,7 @@ const RotatingLogo = styled.img`
   top: 40px;
   left: calc(50% - 110px); /* Center the rotating cube relative to LogoWrapper */
   z-index: 1; /* Places CubeLogo behind LogoName */
-  opacity: 0.5; /* Adjust transparency */
+  opacity: 0.3; /* Adjust transparency */
 `;
 
 

@@ -16,7 +16,7 @@ const UserDetails = () => {
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true); 
-    const [successMessage, setSuccessMessage] = useState(''); // To show success message
+    // const [successMessage, setSuccessMessage] = useState(''); // To show success message
     const navigate = useNavigate(); // Get the navigate function
 
     useEffect(() => {
@@ -53,7 +53,7 @@ const UserDetails = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSuccessMessage(''); // Clear any previous success message
+        // setSuccessMessage(''); // Clear any previous success message
         const user = auth.currentUser;
         if (user) {
             const userId = user.uid;
@@ -62,10 +62,12 @@ const UserDetails = () => {
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     await updateDoc(docRef, userData); 
-                    setSuccessMessage("User details updated successfully!");
+                    alert('User Details Updated Successfully')
+                    // setSuccessMessage("User details updated successfully!");
                 } else {
                     await setDoc(docRef, userData);
-                    setSuccessMessage("User details created successfully!");
+                    alert('User Details Created Successfully')
+                    // setSuccessMessage("User details created successfully!");
                 }
             } catch (error) {
                 setError("Failed to save user data.");
@@ -105,7 +107,7 @@ const UserDetails = () => {
             <div className="main-content">
                 <h1>Edit Details:</h1>
                 {error && <p className="error">{error}</p>} 
-                {successMessage && <p className="success">{successMessage}</p>} {/* Display success message */}
+                {/* {successMessage && <p className="success">{successMessage}</p>} Display success message */}
                 <form className="details-form" onSubmit={handleSubmit}>
                     <label>Name:</label>
                     <input 
@@ -135,6 +137,7 @@ const UserDetails = () => {
                         value={userData.languagePreference || ''} 
                         onChange={(e) => setUserData({...userData, languagePreference: e.target.value})}>
                         <option value="">Select Language</option>
+                        <option value={userData.languagePreference}>{userData.languagePreference}</option>
                         <option value="English">English</option>
                         <option value="Hindi">Hindi</option>
                         <option value="Telugu">Telugu</option>
@@ -145,6 +148,7 @@ const UserDetails = () => {
                         value={userData.learnerType || ''} 
                         onChange={(e) => setUserData({...userData, learnerType: e.target.value})}>
                         <option value="">Select Learner Type</option>
+                        <option value={userData.learnerType}>{userData.learnerType}</option>
                         <option value="Beginner">Beginner</option>
                         <option value="Average">Average</option>
                         <option value="Advanced">Advanced</option>
