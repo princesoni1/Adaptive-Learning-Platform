@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import './VideoPage.css';
+import { marked } from 'marked';
+
+import removeMarkdown from 'remove-markdown';
+import './VideoPage.css'; // Assuming this CSS file contains styles for both the video page and chatbot
 
 const VideoPage = () => {
     const location = useLocation();
@@ -12,8 +15,10 @@ const VideoPage = () => {
     const [notes, setNotes] = useState('');
     const [contentData, setContentData] = useState({});
     const [activeTab, setActiveTab] = useState('transcript');
+    const [isChatOpen, setIsChatOpen] = useState(false); // State for chat visibility
     const [chatMessages, setChatMessages] = useState([]); // To store chat messages
     const [chatInput, setChatInput] = useState('');
+    const messagesEndRef = useRef(null); // Ref to scroll to bottom of chat
 
     const extractFileName = (fullPath) => fullPath.split('/').pop();
 
@@ -70,41 +75,85 @@ const VideoPage = () => {
         }
     };
 
-    // Handle chat message input
-    const handleSendMessage = async () => {
-        if (chatInput.trim() === '') return;
-
-        setChatMessages([...chatMessages, { type: 'user', text: chatInput }]);
-
-        try {
-            const response = await fetch('http://localhost:8080/chat', { // Replace with your backend URL
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: chatInput })
-            });
-
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch chatbot reply');
-            }
-
-            const data = await response.json();
-            setChatMessages([...chatMessages, { type: 'user', text: chatInput }, { type: 'bot', text: data.reply }]);
-        } catch (error) {
-            console.error('Error sending message:', error);
-            setChatMessages([...chatMessages, { type: 'user', text: chatInput }, { type: 'bot', text: 'Chatbot not available at the moment.' }]);
+    const scrollToBottom = () => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            window.scrollTo(0, window.scrollY - 50); // Adjust the scroll position slightly above the last message
         }
+    };
 
-        setChatInput('');
+    const handleSendChat = async (event) => {
+        if (event.key === 'Enter') {
+            if (chatInput.trim() === '') return;
+
+            setChatMessages(prevMessages => [
+                ...prevMessages,
+                { type: 'user', text: `${chatInput}` }
+            ]);
+
+            const currentInput = chatInput;
+            setChatInput('');
+
+            try {
+                const response = await fetch('http://localhost:8080/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: currentInput })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch chatbot reply');
+                }
+
+                const data = await response.json();
+                const plainTextReply = removeMarkdown(data.reply);
+
+                setChatMessages(prevMessages => [
+                    ...prevMessages,
+                    { type: 'bot', text: `${plainTextReply}` }
+                ]);
+
+                // Scroll to the bottom after messages are updated
+                setTimeout(scrollToBottom, 100); // Add a slight delay to ensure DOM updates
+
+            } catch (error) {
+                console.error('Error sending message:', error);
+                setChatMessages(prevMessages => [
+                    ...prevMessages,
+                    { type: 'bot', text: 'Chatbot not available at the moment.' }
+                ]);
+
+                // Scroll to the bottom after an error
+                setTimeout(scrollToBottom, 100);
+            }
+        }
+    };
+
+    // Scroll to bottom effect
+    useEffect(() => {
+        scrollToBottom(); // Auto-scroll whenever messages change
+    }, [chatMessages]);
+
+    const toggleChat = () => {
+        setIsChatOpen(!isChatOpen);
     };
 
     return (
         <div className="video-page">
+            {/* Header */}
+            <header className="header">
+                <div className="logo-container">
+                    <img src="logo5.png" alt="Logo" className="logo" />
+                </div>
+            </header>
+
             {/* Video and Sections */}
             <div className="video-sections-container">
                 <div className="video-container">
                     <video controls src={currentVideo} className="video-player" />
+                    <h3 className="video-title">{currentVideoName.replace('.mp4', '')}</h3>
                 </div>
+
                 <div className="sections-container">
                     <h2>Sections</h2>
                     <ul className="sections-list">
@@ -125,35 +174,68 @@ const VideoPage = () => {
                 <button className={activeTab === 'notes' ? 'active-tab' : ''} onClick={() => setActiveTab('notes')}>
                     Notes
                 </button>
+                <button className={activeTab === 'questions' ? 'active-tab' : ''} onClick={() => setActiveTab('questions')}>
+                    Questions
+                </button>
             </div>
 
             {/* Content Display */}
             <div className="content-display">
                 {activeTab === 'transcript' && <p>{transcript}</p>}
-                {activeTab === 'notes' && <p>{notes}</p>}
+                {activeTab === 'notes' && (
+                    <div
+                        className="markdown-content"
+                        dangerouslySetInnerHTML={{ __html: marked(notes) }}
+                    />
+                )}
+                {activeTab === 'questions' && <p>No questions available yet.</p>}
             </div>
 
-            {/* Chatbot Integration */}
-            <div className="chatbot-container">
-                <div className="chatbot-button" onClick={() => document.getElementById("chatPopup").style.display = "block"}>💬</div>
-                <div className="chat-popup" id="chatPopup">
+
+            {/* Chatbot Toggle Button */}
+            <button className="chat-toggle-btn" onClick={toggleChat}>
+                💬
+            </button>
+
+            {/* Chat Popup */}
+            {isChatOpen && (
+                <div className="chat-popup">
                     <div className="chat-header">
-                        <h3>Gemini Chatbot</h3>
-                        <span className="close" onClick={() => document.getElementById("chatPopup").style.display = "none"}>&times;</span>
+                        <h3> Doubtbox</h3>
+                        <span className="close" onClick={toggleChat}>&times;</span>
                     </div>
                     <div className="chat-body">
-                        {chatMessages.map((msg, index) => (
-                            <div key={index} className={msg.type === 'user' ? 'user-message' : 'bot-message'}>
-                                {msg.text}
-                            </div>
-                        ))}
+                        {chatMessages.length === 0 ? (
+                            <p>No messages yet.</p>
+                        ) : (
+                            chatMessages.map((msg, index) => (
+                                <div key={index} className={`chat-message ${msg.type}`}>
+                                    {msg.text}
+                                </div>
+                            ))
+                        )}
+                        <div ref={messagesEndRef} /> {/* Scroll target */}
                     </div>
-                    <div className="chat-footer">
-                        <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a message..." />
-                        <button onClick={handleSendMessage}>Send</button>
+
+                    <div className="chat-input-area">
+                        <input
+                            className="chat-input"
+                            type="text"
+                            placeholder="Type a message..."
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            onKeyDown={handleSendChat} // Send message on Enter key
+                        />
+                        <button
+                            className={`chat-send-btn ${chatInput.trim() === '' ? 'disabled' : ''}`}
+                            onClick={handleSendChat}
+                            disabled={chatInput.trim() === ''}
+                        >
+                            Send
+                        </button>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
