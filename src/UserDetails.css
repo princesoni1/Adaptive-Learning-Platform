@@ -1,168 +1,140 @@
-/* UserDetails.css */
-
-.container {
+.user-details__container {
     display: flex;
-    min-height: 100vh; /* Full viewport height */
-    background-color: #f4f6f9; /* Light background for better contrast */
-    font-family: 'Arial', sans-serif; /* Font choice */
+    flex-direction: row;
+    height: 100vh;
 }
 
-.sidebar {
-    background-color: #2e3b4e; /* Dark sidebar background */
-    color: white; /* White text on dark background */
-    padding: 20px;
+.user-details__sidebar {
     width: 250px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
-.user-profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.user-details__logo-container {
+    text-align: center;
     margin-bottom: 30px;
 }
 
-.profile-icon {
-    margin-bottom: 10px;
+.user-details__logo {
+    width: 100px;
+    height: auto;
 }
 
-.user-profile h2 {
-    font-size: 1.5rem; /* Larger font for user name */
-    margin: 0;
-    font-weight: bold;
-}
-
-.sidebar-button {
-    background-color: #4a5a6a; /* Button background */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    margin: 10px 0;
-    width: 100%;
+.user-details__profile {
     text-align: center;
-    font-size: 1rem;
-    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+.user-details__profile-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.user-details__profile-name {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+.user-details__sidebar-button {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    border: none;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
-.sidebar-button:hover {
-    background-color: #1f2a38; /* Darker on hover */
+.user-details__sidebar-button:hover {
+    background-color: #0056b3;
 }
 
-.logout {
-    background-color: #e74c3c; /* Red background for logout */
+.user-details__sidebar-button--logout {
+    background-color: #dc3545;
 }
 
-.logout:hover {
-    background-color: #c0392b; /* Darker red on hover */
+.user-details__sidebar-button--logout:hover {
+    background-color: #c82333;
 }
 
-.main-content {
+.user-details__main-content {
     flex-grow: 1;
     padding: 40px;
-    background-color: white;
 }
 
-h1 {
-    font-size: 2rem;
-    color: #333;
+.user-details__title {
+    font-size: 24px;
     margin-bottom: 20px;
 }
 
-.details-form {
-    display: flex;
-    flex-direction: column;
-    max-width: 500px;
+.user-details__form {
+    max-width: 600px;
     margin: 0 auto;
-    background-color: #f9fafb; /* Light form background */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.details-form label {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 8px;
+.user-details__form-label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
 }
 
-.details-form input,
-.details-form select {
+.user-details__form-input {
+    width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 1rem;
+}
+
+.user-details__form-select {
     width: 100%;
-    box-sizing: border-box; /* Ensure consistent sizing */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.details-form select {
-    cursor: pointer;
-}
-
-.form-buttons {
+.user-details__form-buttons {
     display: flex;
     justify-content: space-between;
 }
 
-.form-buttons button {
+.user-details__form-button {
     padding: 10px 20px;
     border: none;
-    background-color: #2e3b4e;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
-.form-buttons button:hover {
-    background-color: #1f2a38;
+.user-details__form-button--primary {
+    background-color: #28a745;
+    color: white;
 }
 
-.form-buttons button[type="submit"] {
-    background-color: #3498db; /* Blue background for submit */
+.user-details__form-button--primary:hover {
+    background-color: #218838;
 }
 
-.form-buttons button[type="submit"]:hover {
-    background-color: #2980b9; /* Darker blue on hover */
+.user-details__form-button--secondary {
+    background-color: #6c757d;
+    color: white;
 }
 
-.form-buttons button[type="button"] {
-    background-color: #95a5a6; /* Grey background for go back */
+.user-details__form-button--secondary:hover {
+    background-color: #5a6268;
 }
 
-.form-buttons button[type="button"]:hover {
-    background-color: #7f8c8d; /* Darker grey on hover */
+.user-details__error {
+    color: red;
+    margin-bottom: 15px;
 }
 
-/* Media query for responsiveness */
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        padding: 10px;
-        text-align: center;
-    }
-
-    .sidebar-button {
-        margin: 5px 0;
-    }
-
-    .main-content {
-        padding: 20px;
-    }
-
-    .details-form {
-        max-width: 100%;
-        padding: 15px;
-    }
+.user-details__success {
+    color: green;
+    margin-bottom: 15px;
 }

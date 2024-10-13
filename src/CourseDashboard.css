@@ -1,3 +1,4 @@
+/* General page styling */
 body {
     background-color: #d7e0eb;
     height: 100%; /* Set height to 100% of the viewport */
@@ -6,148 +7,134 @@ body {
     overflow: hidden;
 }
 
-.header {
-    background-color: #181c6c; /* Dark background */
-    padding: 10px 20px; /* Added horizontal padding for better alignment */
+/* Header styling */
+.course-dashboard__header {
+    background-color: #181c6c;
+    padding: 10px 20px;
     text-align: left;
-    position: fixed; /* Fixed header */
+    position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
     display: flex;
-    align-items: center; /* Vertically center the content */
-    justify-content: space-between; /* Space out items inside header */
-    height: 60px; /* Increased height for better spacing */
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
 }
 
-.logo-container {
+.course-dashboard__logo {
+    width: 120px;
+    height: auto;
+}
+
+.course-dashboard__profile-icon {
+    width: 5%;
+    height: auto;
+    cursor: pointer;
+    position: absolute;
+    top: 8%;
+    right: 11.2%;
+    z-index: 10;
+    transition: transform 0.3s ease;
+}
+
+.course-dashboard__profile-icon:hover {
+    transform: scale(1.1);
+}
+
+.course-dashboard__profile-container {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin-left: -90%;
     display: flex;
     align-items: center;
+    height: 40%;
+    margin-right: 3%;
 }
 
-/* Updated styles for logo */
-.logo {
-    width: 18vw; /* Increased width based on viewport width */
-    max-width: 300px; /* Increased maximum width */
-    height: auto; /* Maintain aspect ratio */
-    min-width: 140px; /* Increased minimum width to prevent small size */
-    margin-left: -10%;
+.course-dashboard__profile-text {
+    font-weight: bold;
 }
 
-/* Profile container styling */
-.profile-container {
-    display: flex;
-    align-items: center;
-}
-
-/* Base styles for profile icon */
-.profile-icon {
-    width: 8vw; /* Responsive width based on viewport width */
-    max-width: 80px; /* Optional maximum width */
-    height: auto; /* Maintain aspect ratio */
-    min-width: 50px; /* Adjust minimum size */
-    margin-right: 20px; /* Minimum width to prevent it from being too small */
-}
-
-/* Media queries for responsiveness */
-@media (min-width: 768px) {
-    .logo {
-        width: 140px; /* Set larger fixed width on medium and larger screens */
-        margin-left: 0;
-    }
-    .profile-icon {
-        width: 60px; /* Set fixed width for profile icon */
-    }
-}
-
-@media (min-width: 1200px) {
-    .logo {
-        width: 180px; /* Larger logo on very large screens */
-    }
-    .profile-icon {
-        width: 70px; /* Increase size for profile icon on larger screens */
-    }
-}
-
-/* Rest of the styles remain unchanged */
-.course-dashboard {
-    padding: 40px; /* More padding for larger center space */
-    background-color: #d7e0eb; /* Light background color */
-    min-height: 100vh; /* Ensure full height */
+/* Main content */
+.course-dashboard__content {
+    padding: 40px;
+    background-color: #d7e0eb;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center the course cards container */
+    align-items: center;
     justify-content: center;
 }
 
-.course-dashboard h1 {
-    margin-bottom: 2%;
+.course-dashboard__title {
+    margin-top: 2%;
+    margin-left: -0.1%;
 }
 
-.course-cards {
+.course-dashboard__cards {
     display: flex;
-    flex-wrap: wrap; /* Wrap cards to next line */
-    justify-content: center; /* Center cards */
-    gap: 30px; /* Larger space between cards */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
     max-width: 1200px;
-    padding-bottom: 25%; /* Restrict the total width of cards */
+    padding-bottom: 25%;
 }
 
 .course-card {
-    background-color: #fff; /* Card background color */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Slightly bigger shadow effect */
-    overflow: hidden; /* Clip content */
-    width: 260px; /* Bigger card width */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: transform 0.2s; /* Smooth scaling effect */
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s;
     display: flex;
-    flex-direction: column; /* Column layout to fit image and title */
+    flex-direction: column;
     height: 200px;
-    align-items: center; /* Center items inside the card */
-}
-
-.course-card:hover {
-    transform: scale(1.08); /* Slightly larger scale on hover */
-}
-
-.course-card img {
-    width: 100%; /* Image takes full width of the card */
-    height: 140px; /* Fixed height for all images */
-    object-fit: cover; /* Ensure image fits within dimensions by cropping */
-    border-bottom: 2px solid #ddd; /* Optional border under the image */
-}
-
-.course-card h2 {
-    padding: 10px 20px; /* Reduced padding around the title */
-    font-size: 1.3em; /* Slightly larger font size for the title */
-    text-align: center; /* Center text */
-    color: #0b0a0a; /* Dark text color */
-    margin: 0; /* Remove default margin */
-    flex-grow: 0; /* Remove flex-grow to prevent it from pushing down */
-    display: flex;
-    justify-content: center;
     align-items: center;
 }
 
-.footer {
+.course-card:hover {
+    transform: scale(1.08);
+}
+
+.course-card__thumbnail {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-bottom: 2px solid #ddd;
+}
+
+.course-card__title {
+    padding: 10px 20px;
+    font-size: 1.3em;
+    text-align: center;
+    color: #0b0a0a;
+    margin: 0;
+}
+
+/* Footer */
+.course-dashboard__footer {
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: white; /* White background for the footer */
+    background-color: white;
     display: flex;
-    justify-content: center; /* Center the footer content */
-    padding: 10px 0; /* Padding for some spacing inside the footer */
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* Shadow effect at the top of the footer */
+    justify-content: center;
+    padding: 10px 0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.footer-content {
+.course-dashboard__footer-content {
     text-align: center;
-    color: #333; /* Text color inside the footer */
+    color: #333;
 }
 
-.footer-content p {
-    margin: 0; /* Remove margin from paragraph */
+.course-dashboard__footer-content p {
+    margin: 0;
     font-size: 1em;
-    font-weight: bold; /* Set font size */
+    font-weight: bold;
 }

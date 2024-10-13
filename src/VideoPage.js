@@ -42,7 +42,7 @@ const VideoPage = () => {
                     setCurrentVideoName(videoFileName);
                 }
 
-                const contentResponse = await fetch(`https://storage.googleapis.com/als-courses/${courseFolder}content.json`);
+                const contentResponse = await fetch(`https://storage.googleapis.com/als-courses/${courseFolder}content.json?timestamp=${new Date().getTime()}`);
                 const contentData = await contentResponse.json();
                 setContentData(contentData);
 
