@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { marked } from 'marked';
-
 import removeMarkdown from 'remove-markdown';
+import { db, auth } from './firebaseConfig';
+import { doc, getDoc} from "firebase/firestore";
 import './VideoPage.css'; // Assuming this CSS file contains styles for both the video page and chatbot
 
 const VideoPage = () => {
@@ -13,18 +14,40 @@ const VideoPage = () => {
     const [currentVideoName, setCurrentVideoName] = useState('');
     const [transcript, setTranscript] = useState('');
     const [notes, setNotes] = useState('');
+    const [questions, setQuestions] = useState(''); // Added questions state
     const [contentData, setContentData] = useState({});
     const [activeTab, setActiveTab] = useState('transcript');
     const [isChatOpen, setIsChatOpen] = useState(false); // State for chat visibility
     const [chatMessages, setChatMessages] = useState([]); // To store chat messages
     const [chatInput, setChatInput] = useState('');
-    const messagesEndRef = useRef(null); // Ref to scroll to bottom of chat
+    const messagesEndRef = useRef(null);
+    const [learnerType, setLearnerType] = useState('');
 
     const extractFileName = (fullPath) => fullPath.split('/').pop();
 
     useEffect(() => {
         const fetchVideosAndSections = async () => {
             try {
+                console.log('Video And Section Fetch')
+                const user = auth.currentUser;
+                console.log(user)
+                if (user) {
+                    const userId = user.uid;
+                    const docRef = doc(db, "users", userId);
+                    try {
+                        const docSnap = await getDoc(docRef);
+                        console.log(docSnap)
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            console.log(data)
+                            setLearnerType(data.learnerType.toLowerCase());
+                            console.log(learnerType)
+                        }
+                    } catch (error) {
+                    }
+                }
+                
+
                 const response = await fetch(`https://storage.googleapis.com/storage/v1/b/als-courses/o?prefix=${courseFolder}`);
                 const data = await response.json();
                 const videos = data.items
@@ -46,21 +69,24 @@ const VideoPage = () => {
                 const contentData = await contentResponse.json();
                 setContentData(contentData);
 
-                if (videos.length > 0) {
+                if (videos.length > 0 && learnerType) {
                     const videoFileName = extractFileName(videos[0].fullName);
+                    const learnerDefKey = `${learnerType}_def`;
+                    const learnerQuestionsKey = `${learnerType}_questions`;
+
                     if (contentData[videoFileName]) {
                         setTranscript(contentData[videoFileName].transcript || 'No transcript available.');
-                        setNotes(contentData[videoFileName].quesdef || 'No notes available.');
+                        setNotes(contentData[videoFileName][learnerDefKey] || 'No notes available.');
+                        setQuestions(contentData[videoFileName][learnerQuestionsKey] || 'No questions available.');
                     }
                 }
-
             } catch (error) {
                 console.error('Error fetching videos or sections:', error);
             }
         };
 
         fetchVideosAndSections();
-    }, [courseFolder]);
+    }, [courseFolder,learnerType]);
 
     const handleVideoSelect = (video) => {
         setCurrentVideo(video.url);
@@ -68,10 +94,14 @@ const VideoPage = () => {
         setCurrentVideoName(videoFileName);
         if (contentData[videoFileName]) {
             setTranscript(contentData[videoFileName].transcript || 'No transcript available.');
-            setNotes(contentData[videoFileName].quesdef || 'No notes available.');
+            const learnerDefKey = `${learnerType}_def`;
+            const learnerQuestionsKey = `${learnerType}_questions`;
+            setNotes(contentData[videoFileName][learnerDefKey] || 'No notes available.');
+            setQuestions(contentData[videoFileName][learnerQuestionsKey] || 'No questions available.');
         } else {
             setTranscript('No transcript available.');
             setNotes('No notes available.');
+            setQuestions('No questions available.');
         }
     };
 
@@ -188,9 +218,13 @@ const VideoPage = () => {
                         dangerouslySetInnerHTML={{ __html: marked(notes) }}
                     />
                 )}
-                {activeTab === 'questions' && <p>No questions available yet.</p>}
+                {activeTab === 'questions' && (
+                    <div
+                        className="markdown-content"
+                        dangerouslySetInnerHTML={{ __html: marked(questions) }}
+                    />
+                )}
             </div>
-
 
             {/* Chatbot Toggle Button */}
             <button className="chat-toggle-btn" onClick={toggleChat}>
@@ -209,30 +243,22 @@ const VideoPage = () => {
                             <p>No messages yet.</p>
                         ) : (
                             chatMessages.map((msg, index) => (
-                                <div key={index} className={`chat-message ${msg.type}`}>
+                                <div key={index} className={msg.type}>
+                                    {msg.type === 'user' ? 'You: ' : 'Chatbot: '}
                                     {msg.text}
                                 </div>
                             ))
                         )}
-                        <div ref={messagesEndRef} /> {/* Scroll target */}
+                        <div ref={messagesEndRef} />
                     </div>
-
-                    <div className="chat-input-area">
+                    <div className="chat-input">
                         <input
-                            className="chat-input"
                             type="text"
-                            placeholder="Type a message..."
                             value={chatInput}
-                            onChange={(e) => setChatInput(e.target.value)}
-                            onKeyDown={handleSendChat} // Send message on Enter key
+                            onChange={e => setChatInput(e.target.value)}
+                            onKeyPress={handleSendChat}
+                            placeholder="Type a message..."
                         />
-                        <button
-                            className={`chat-send-btn ${chatInput.trim() === '' ? 'disabled' : ''}`}
-                            onClick={handleSendChat}
-                            disabled={chatInput.trim() === ''}
-                        >
-                            Send
-                        </button>
                     </div>
                 </div>
             )}
