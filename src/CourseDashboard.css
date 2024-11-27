@@ -1,7 +1,7 @@
 /* General page styling */
 body {
     background-color: #d7e0eb;
-    height: 100%; /* Set height to 100% of the viewport */
+    height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -22,119 +22,122 @@ body {
     height: 60px;
 }
 
+/* Logo styling */
 .course-dashboard__logo {
     width: 120px;
     height: auto;
 }
 
-.course-dashboard__profile-icon {
-    width: 5%;
-    height: auto;
-    cursor: pointer;
-    position: absolute;
-    top: 8%;
-    right: 11.2%;
-    z-index: 10;
-    transition: transform 0.3s ease;
-}
-
-.course-dashboard__profile-icon:hover {
-    transform: scale(1.1);
-}
-
+/* Profile container styling */
 .course-dashboard__profile-container {
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    margin-left: -90%;
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
-    height: 40%;
-    margin-right: 3%;
+    cursor: pointer;
 }
 
+/* Profile icon styling */
+.course-dashboard__profile-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* Profile text styling */
 .course-dashboard__profile-text {
     font-weight: bold;
+    color: #fff;
 }
 
-/* Main content */
-.course-dashboard__content {
-    padding: 40px;
-    background-color: #d7e0eb;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.course-dashboard__title {
-    margin-top: 2%;
-    margin-left: -0.1%;
-}
-
+/* Horizontal accordion container */
 .course-dashboard__cards {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 30px;
-    max-width: 1200px;
-    padding-bottom: 25%;
+    align-items: center;
+    gap: 20px;
+    overflow-x: auto;
+    max-width: 90%;
+    margin: 10vh auto;
+    height: 70vh; /* Increased height to make the tiles taller */
+    overflow-y: hidden; /* Prevent vertical scroll on the entire section */
 }
 
+/* Base styling for course cards */
 .course-card {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    width: 260px;
     cursor: pointer;
-    transition: transform 0.2s;
     display: flex;
     flex-direction: column;
-    height: 200px;
     align-items: center;
+    justify-content: flex-start;
+    transition: all 1s ease;
+    height: 40vw; /* Increased height */
+    max-width: 25%; /* Adjust max width for better balance */
 }
 
-.course-card:hover {
-    transform: scale(1.08);
+/* Enlarged card */
+.course-card--enlarged {
+    flex: 2;
+    height: 40vw;
+    max-width: 40%;
+    padding: 20px;
 }
 
+/* Compressed card */
+.course-card--compressed {
+    flex: 1;
+    height: 30vw;
+    max-width: 20%;
+    opacity: 0.9;
+}
+
+/* Shared thumbnail styling */
 .course-card__thumbnail {
     width: 100%;
-    height: 140px;
-    object-fit: cover;
+    height: 60%; /* Image takes up 60% of the card height */
+    object-fit: cover; /* This will fill the space without preserving the aspect ratio */
+    object-position: center; /* Ensure the image fills the space */
     border-bottom: 2px solid #ddd;
 }
 
+/* Card title styling */
 .course-card__title {
-    padding: 10px 20px;
-    font-size: 1.3em;
-    text-align: center;
+    font-size: 1.5em;
     color: #0b0a0a;
-    margin: 0;
-}
-
-/* Footer */
-.course-dashboard__footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.course-dashboard__footer-content {
+    margin: 10px 0;
     text-align: center;
-    color: #333;
 }
 
-.course-dashboard__footer-content p {
-    margin: 0;
+/* Compressed card details */
+.course-card__details-compressed {
     font-size: 1em;
-    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+}
+
+/* Enlarged card details */
+.course-card__details {
+    font-size: 0.9em; /* Adjust font size */
+    text-align: left;
+    padding: 10px;
+    line-height: 1.5;
+    height: 40%; /* Take up the remaining space */
+    overflow-y: auto; /* Scroll only when necessary */
+}
+
+/* Hover effect to enlarge cards */
+.course-card:hover {
+    flex: 2;
+    max-width: 40%;
+}
+
+.course-card:hover ~ .course-card {
+    flex: 1;
+    max-width: 20%;
 }
